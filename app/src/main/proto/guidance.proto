@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.chrisbesch.mcmissile.guidance";
+option java_outer_classname = "GuidanceGRPC";
+
+package mcmissile.guidance;
+
+message Missile {
+    string name = 1;
+    int32 missileId = 2;
+    int32 connectionId = 3;
+    int32 budget = 4;
+}
+
+message MissileState {
+    int32 id = 1;
+    int32 lastControlInputId = 2;
+
+    // may not change during flight
+    Missile missile = 3;
+
+    // only to be considered when not destroyed
+    double posX = 4;
+    double posY = 5;
+    double posZ = 6;
+
+    // only to be considered when not destroyed
+    double velX = 7;
+    double velY = 8;
+    double velZ = 9;
+
+    // only to be considered when not destroyed
+    double pitch = 10;
+    double yaw = 11;
+
+    // only to be considered when not destroyed and targetLock
+    double targetPosX = 12;
+    double targetPosY = 14;
+    double targetPosZ = 15;
+
+    // only to be considered when not destroyed and targetLock
+    double targetVelX = 16;
+    double targetVelY = 17;
+    double targetVelZ = 18;
+
+    bool targetLock = 19;
+    bool destroyed = 20;
+}
+
+message MissileHardwareConfig {
+// airframe
+// - movement stability (noise in rotation)
+// - rotation control speed
+// motor
+// - burn duration, burn profile
+// - burn noise
+// - multi-stage
+// warHeads
+// - sniper arrow without explosion
+// - tnt (different strengths)
+// - effect (different types)
+// - inert
+// - anti-elytra (or anti-air, with anti-rocket)
+// - block-piercing
+// sensors
+// - lock types
+//     - lock-on at launch
+//     - lock-on after launch
+// - seeker types
+//     - specific entity type
+//     - any entity
+//     - specific block
+//     - block straight infront of missile at launch
+// - limitations
+//     - through blocks
+//     - blocked by blocks
+// - range
+// - angle
+// - accuracy
+// target requirements
+// - entity type
+// - player name
+// - block type
+    
+    string targetEntityRegex = 1;
+    string playerNameRegex = 2;
+}
+
+message ControlInput {
+    int32 id = 1;
+
+    // only to be sent in first message
+    MissileHardwareConfig hardwareConfig = 2;
+
+    // only to be considered when not explode
+    double pitchTurn = 3;
+    double yawTurn = 4;
+
+    bool explode = 5;
+    bool disarm = 6;
+}
+
+service Guidance {
+    rpc GetGuidance(stream MissileState) returns (stream ControlInput) {}
+}
