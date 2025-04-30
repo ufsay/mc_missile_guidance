@@ -23,6 +23,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import java.util.HashMap;
+
 public class MissileGuidanceServer {
   private static final Logger logger = Logger.getLogger(MissileGuidanceServer.class.getName());
 
@@ -80,13 +82,31 @@ public class MissileGuidanceServer {
     public StreamObserver<MissileState> getGuidance(final StreamObserver<ControlInput> controlInputObserver) {
       return new StreamObserver<MissileState>() {
         private int id = 0;
+
+        double init_pitch = 0;
+        double init_yaw = 0; 
+
         @Override
         public void onNext(MissileState missileState) {
+          
+          if (missileState.getTime() == 0) {
+              init_pitch = missileState.getPitch();
+              init_yaw = missileState.getYaw();
+          }
+          
           // TODO: do something with the new missile state
-
+          logger.log(Level.INFO, "received missileState, pitch/yaw " + missileState.getPitch() + " " + missileState.getYaw() + " init pitch/yaw " + init_pitch + " " + init_yaw);
           logger.log(Level.INFO, "received missileState, pos " + missileState.getPosX() + " " + missileState.getPosY() + " " + missileState.getPosZ());
           // send control to missile
-          var controlInput = ControlInput.newBuilder().setId(id++).setPitchTurn(0).setYawTurn(0).setExplode(false).setDisarm(false).build();
+          var controlInput = ControlInput.newBuilder().setId(id++).setPitchTurn(init_pitch - missileState.getPitch()).setYawTurn(init_yaw - missileState.getYaw()).setExplode(false).setDisarm(false).setHardwareConfig(
+                        MissileHardwareConfig.newBuilder()
+                          .setWarhead(MissileHardwareConfig.Warhead.TNT_M)
+                          .setAirframe(MissileHardwareConfig.Airframe.DEFAULT_AIRFRAME)
+                          .setMotor(MissileHardwareConfig.Motor.SINGLE_STAGE_M)
+                          .setBattery(MissileHardwareConfig.Battery.LI_ION_M)
+                          .setSeeker(MissileHardwareConfig.Seeker.NO_SEEKER)
+                          .setInertialSystem(MissileHardwareConfig.InertialSystem.DEFAULT_IMU)
+                          .build()).build();
           controlInputObserver.onNext(controlInput);
         }
 

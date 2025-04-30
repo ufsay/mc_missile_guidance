@@ -8,86 +8,117 @@ package mcmissile.guidance;
 
 message Missile {
     string name = 1;
-    int32 missileId = 2;
+    int32 id = 2;
     int32 connectionId = 3;
     int32 budget = 4;
 }
 
 message MissileState {
-    int32 id = 1;
-    int32 lastControlInputId = 2;
-
     // may not change during flight
     Missile missile = 3;
 
-    // only to be considered when not destroyed
-    double posX = 4;
-    double posY = 5;
-    double posZ = 6;
+    int32 time = 4;
 
     // only to be considered when not destroyed
-    double velX = 7;
-    double velY = 8;
-    double velZ = 9;
+    double posX = 5;
+    double posY = 6;
+    double posZ = 7;
 
     // only to be considered when not destroyed
-    double pitch = 10;
-    double yaw = 11;
+    double velX = 8;
+    double velY = 9;
+    double velZ = 10;
+
+    // only to be considered when not destroyed
+    double pitch = 11;
+    double yaw = 12;
 
     // only to be considered when not destroyed and targetLock
-    double targetPosX = 12;
-    double targetPosY = 14;
-    double targetPosZ = 15;
+    double targetPosX = 13;
+    double targetPosY = 15;
+    double targetPosZ = 16;
 
     // only to be considered when not destroyed and targetLock
-    double targetVelX = 16;
-    double targetVelY = 17;
-    double targetVelZ = 18;
+    double targetVelX = 17;
+    double targetVelY = 18;
+    double targetVelZ = 19;
 
-    bool targetLock = 19;
-    bool destroyed = 20;
+    bool targetLock = 20;
+    bool destroyed = 21;
 }
 
 message MissileHardwareConfig {
-// airframe
-// - movement stability (noise in rotation)
-// - rotation control speed
-// motor
-// - burn duration, burn profile
-// - burn noise
-// - multi-stage
-// warHeads
-// - sniper arrow without explosion
-// - tnt (different strengths)
-// - effect (different types)
-// - inert
-// - anti-elytra (or anti-air, with anti-rocket)
-// - block-piercing
-// sensors
-// - lock types
-//     - lock-on at launch
-//     - lock-on after launch
-// - seeker types
-//     - specific entity type
-//     - any entity
-//     - specific block
-//     - block straight infront of missile at launch
-// - limitations
-//     - through blocks
-//     - blocked by blocks
-// - range
-// - angle
-// - accuracy
-// target requirements
-// - entity type
-// - player name
-// - block type
+    // - sniper arrow without explosion (the faster the more damage)
+    // - tnt (different strengths)
+    // - effect (different types)
+    // - inert
+    // - anti-elytra (or anti-air, with anti-rocket)
+    // - block-piercing
+    enum Warhead {
+        BLANK = 0;
+        TNT_M = 1;
+    }
+    Warhead warhead = 1;
+
+    // - movement stability (noise in rotation)
+    // - rotation control speed
+    // - flight ceiling?
+    enum Airframe {
+        DEFAULT_AIRFRAME = 0;
+    }
+    Airframe airframe = 2;
+
+    // - burn duration, burn profile
+    // - burn noise
+    // - multi-stage
+    enum Motor {
+        SINGLE_STAGE_M = 0;
+    }
+    Motor motor = 3;
+
+    // - time to live
+    enum Battery {
+        LI_ION_M = 0;
+    }
+    Battery battery = 4;
+
+    // - lock types
+    //     - lock-on at launch
+    //     - lock-on after launch
+    // - seeker types
+    //     - specific entity type
+    //     - any entity
+    //     - specific block
+    //     - block straight infront of missile at launch
+    // - limitations
+    //     - through blocks
+    //     - blocked by blocks
+    // - range
+    // - angle
+    // - accuracy
+    // target requirements
+    // - entity type
+    // - player name
+    // - block type
+    enum Seeker {
+        NO_SEEKER = 0;
+    }
+    Seeker seeker = 5;
+
+    // position/velocity accuracy
+    enum InertialSystem {
+        DEFAULT_IMU = 0;
+    }
+    InertialSystem inertialSystem = 6;
     
-    string targetEntityRegex = 1;
-    string playerNameRegex = 2;
+    string targetEntityRegex = 7;
+    string playerNameRegex = 8;
 }
 
 message ControlInput {
+    // The guidance server sends ControlInput structs with increasing id.
+    // The first ControlInput id is 1.
+    // This is used to detect when Controlinput structs arrive too late or out of order.
     int32 id = 1;
 
     // only to be sent in first message
