@@ -3,6 +3,8 @@ package com.thomas.mcmissileguidance;
 import com.chrisbesch.mcmissile.guidance.GuidanceGrpc.GuidanceImplBase;
 import com.chrisbesch.mcmissile.guidance.ControlInput;
 import com.chrisbesch.mcmissile.guidance.Missile;
+import com.chrisbesch.mcmissile.guidance.HealthRequest;
+import com.chrisbesch.mcmissile.guidance.HealthResponse;
 import com.chrisbesch.mcmissile.guidance.MissileState;
 import com.chrisbesch.mcmissile.guidance.MissileHardwareConfig;
 
@@ -201,6 +203,12 @@ public class MissileGuidanceServer {
           controlInputObserver.onCompleted();
         }
       };
+    }
+
+    @Override
+    public void healthCheck(HealthRequest request, StreamObserver<HealthResponse> responseObserver) {
+        // don't do anything
+        responseObserver.onNext(HealthResponse.newBuilder().build());
     }
   }
 }
