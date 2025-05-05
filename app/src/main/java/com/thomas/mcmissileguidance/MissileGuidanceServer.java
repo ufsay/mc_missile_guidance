@@ -73,7 +73,14 @@ public class MissileGuidanceServer {
   }
 
   public static void main(String[] args) throws Exception {
-    MissileGuidanceServer server = new MissileGuidanceServer(42069);
+    String portStr = System.getenv("PORT");
+    if (portStr == null) {
+        throw new java.lang.RuntimeException(
+                "PORT environment variable needs to be defined");
+    }
+    Integer port = Integer.parseInt(portStr);
+
+    MissileGuidanceServer server = new MissileGuidanceServer(port);
     server.start();
     server.blockUntilShutdown();
   }
@@ -209,6 +216,8 @@ public class MissileGuidanceServer {
     public void healthCheck(HealthRequest request, StreamObserver<HealthResponse> responseObserver) {
         // don't do anything
         responseObserver.onNext(HealthResponse.newBuilder().build());
+        responseObserver.onCompleted();
+        logger.log(Level.INFO, "health check");
     }
   }
 }
